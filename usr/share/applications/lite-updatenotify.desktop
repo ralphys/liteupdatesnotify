@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Lite Update Notify
-Comment=Configure Lite Update Notify
+Name=Lite Updates Notify
+Comment=Set an Update frequency notification
 Categories=GNOME;GTK;Settings;X-GNOME-Settings-Panel;X-GNOME-PersonalSettings;DesktopSettings;X-XFCE;
 Keywords=Configuration;Profile;User;
 Exec=gksudo /usr/bin/lite-updatenotify
