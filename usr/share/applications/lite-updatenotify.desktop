@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Lite Update Notify
+Comment=Configure Lite Update Notify
+Categories=GNOME;GTK;Settings;X-GNOME-Settings-Panel;X-GNOME-PersonalSettings;DesktopSettings;X-XFCE;
+Keywords=Configuration;Profile;User;
+Exec=gksudo /usr/bin/lite-updatenotify
+Icon=mugshot
+Terminal=false
+Type=Application

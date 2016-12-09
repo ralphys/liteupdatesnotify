@@ -1,0 +1,85 @@
+#! /bin/bash
+#--------------------------------------------------------------------------------------------------------
+# Name: Lite Updates Notify
+# Description: Set an Update frequency notification on Linux Lite.
+# Authors:  Jerry Bezencon
+# Website: https://www.linuxliteos.com
+#--------------------------------------------------------------------------------------------------------
+
+# Ensure multi-language support
+export LANG=C
+
+# Set the window icon variable
+ic="/usr/share/icons/zenity-llcc.png"
+
+# Set user logged in as variable
+USERLOGGEDIN=$(whoami)
+
+# Set working dir variable
+DIR=/var/spool/cron/crontabs/
+
+# Check if User is member of 'sudo' group
+if [ "$(whoami)" != "root" ]; then
+    (zenity --info --ok-label="Got it!" --title="You are not an Administrator" \
+            --text="\n<b>You need to be an Administrator to use this application</b> \n \nAsk your System Administrator to add you to the <b>sudo</b> group." --no-wrap)
+	exit 1
+
+fi
+
+# Lite Updates Notify Titlebar
+LUN="Lite Updates Notify"
+
+# UNI Zenity message
+UNI="Update Notification Interval"
+
+# Set app icon variable
+APPICON=/usr/share/liteupdatenotify/icons/
+
+# Start main dialogue
+
+CHFREQ=$(zenity --title="$LUN" \
+--ok-label="Set Frequency" \
+--height=360 --width="560" \
+--window-icon=$ic \
+--list --imagelist --text "Select an Update notification frequency from below:\n" \
+--column "  Select  " --column " Frequency" --column " Description" \
+"$APPICON/clock.png" " Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
+"$APPICON/clock.png" " Every 6 Hours" " First run at midnight, then every 6 hours" \
+"$APPICON/clock.png" " Every 12 Hours" " First run at midnight, then every 12 hours" \
+"$APPICON/clock.png" " Daily" " Every day at 7pm" \
+"$APPICON/clock.png" " Every other Day" " Every other day at 7pm" \
+"$APPICON/clock.png" " Weekly" " Once every week at 7pm on a Monday" \
+"$APPICON/clock.png" " Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
+"$APPICON/clock.png" " Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday")
+
+if [[ "$CHFREQ" =~ " Hourly" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 * * * * su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Every 6 Hours" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 */6 * * * su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Every 12 Hours" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 */12 * * * su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Daily" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 19 * * * su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Every other Day" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 19 */2 * * su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Weekly" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 19 */7 * 1 su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Every 2 Weeks" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 19 */14 * 1 su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+elif [[ "$CHFREQ" =~ " Every 3 Weeks" ]]; then
+    rm -rf $DIR/$USERLOGGEDIN && touch $DIR/$USERLOGGEDIN && echo "0 19 */21 * 1 su $USERLOGGEDIN -c /usr/local/sbin/updatenotify >/dev/null 2>&1" >> $DIR/$USERLOGGEDIN | zenity --progress --title="$LUN" --text="Setting $UNI, please do not interrupt this operation..." --pulsate --auto-kill --auto-close
+
+            else
+
+                                        zenity --error \
+                                        --title="$LUN" --width=140 --text="An error occured! \n\nPlease try again."
+                        fi
+
+exit 0
