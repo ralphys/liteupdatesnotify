@@ -2,7 +2,7 @@
 #--------------------------------------------------------------------------------------------------------
 # Name: Lite Updates Notify
 # Description: Set an Update frequency notification on Linux Lite.
-# Authors:  Jerry Bezencon
+# Authors:  Jerry Bezencon, Ralphy
 # Website: https://www.linuxliteos.com
 #--------------------------------------------------------------------------------------------------------
 
@@ -105,7 +105,6 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
         continue
     else
         zenity --width=320 --height=60 --info --timeout=3 --title=" $LUN" --text="\nUpdates notification has been successfully scheduled."
-
 fi
 done
 exit 0
