@@ -29,9 +29,25 @@ if [ $EUID -ne 0 ]; then
     1) continue
     esac
 fi
-
 # Start main dialogue
 while (true); do
+# check if user's cron file exists... if doesn't exist, create it and set permissions
+if [ ! -f "$DIR/$LUNUSER" ]; then
+        touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER
+printf "## $LUN - DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
+#0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
+## END #######################################" >> $DIR/$LUNUSER
+    else
+        if grep -q "$LUN" $DIR/$LUNUSER; then
+        :
+        else
+            chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER &&
+            printf "## $LUN - DO NOT DELETE OR MANUALLY EDIT THE LINE BELOW
+#0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
+## END #######################################" >> $DIR/$LUNUSER
+        fi
+fi
+
 CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text "Set the Updates notification frequency from the options below:\n" \
 --column "     Frequency   " --column "Description" \
@@ -53,7 +69,7 @@ if [[ $CHFREQ =~ Disable ]]; then
     zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notifications?"
     confirm=$?
     if [ "$confirm" -eq "0" ]; then
-        rm -rf $DIR/$LUNUSER
+        sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
                        --text="\n<b>An error occurred while scheduling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
@@ -73,23 +89,23 @@ if [[ $CHFREQ =~ Disable ]]; then
             continue
     fi 
 fi
-# set cron schedule
+
 if [[ $CHFREQ =~ Hourly ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 6 Hours" ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 12 Hours" ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 */12 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 */12 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ Daily ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 19 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 19 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every other Day" ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 19 */2 * * ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 19 */2 * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ Weekly ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 19 */7 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 19 */7 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 2 Weeks" ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 19 */14 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 19 */14 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 3 Weeks" ]]; then
-    rm -rf $DIR/$LUNUSER && touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER && printf "0 19 */21 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1" >> $DIR/$LUNUSER
+    sed -i '/ '"$LUN"' /!b;n;c0 19 */21 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
 fi
 
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
@@ -104,6 +120,7 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
             fi
         continue
     else
+        service cron reload
         zenity --width=320 --height=60 --info --timeout=3 --title=" $LUN" --text="\nUpdates notification has been successfully scheduled."
 fi
 done
