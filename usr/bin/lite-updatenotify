@@ -32,17 +32,17 @@ while (true); do
 # check if user's cron file exists... if doesn't exist, create it and set permissions
 if [ ! -f "$DIR/$LUNUSER" ]; then
         touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER
-printf "## $LUN - DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
+printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
 #0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
-## END #######################################" >> $DIR/$LUNUSER
+## $LUN - DO NOT MANUALLY DELETE OR EDIT THE ABOVE LINE ######" >> $DIR/$LUNUSER
     else
         if grep -q "$LUN" $DIR/$LUNUSER; then
         :
         else
             chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER &&
-            printf "## $LUN - DO NOT DELETE OR MANUALLY EDIT THE LINE BELOW
+            printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
 #0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
-## END #######################################" >> $DIR/$LUNUSER
+## $LUN - DO NOT MANUALLY DELETE OR EDIT THE ABOVE LINE ######" >> $DIR/$LUNUSER
         fi
 fi
 
@@ -57,17 +57,22 @@ CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label
 " ✔ Weekly" " Once every week at 7pm on a Monday" \
 " ✔ Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
 " ✔ Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-" ✘ Disable" "Disable Updates Notification")
+" ✘ Disable" " Disable Updates Notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0
 fi 
 
+if [[ $CHFREQ -eq "0" ]]; then
+    zenity --info --width=280 --height=60 --title=" $LUN" --text="\nYou did not select any of the available options. Please try again."
+    continue
+fi
+
 if [[ $CHFREQ =~ Disable ]]; then
     zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notifications?"
     confirm=$?
     if [ "$confirm" -eq "0" ]; then
-        sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+        sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER  && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
                        --text="\n<b>An error occurred while scheduling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
@@ -89,21 +94,21 @@ if [[ $CHFREQ =~ Disable ]]; then
 fi
 
 if [[ $CHFREQ =~ Hourly ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 6 Hours" ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 12 Hours" ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 */12 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 */12 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ Daily ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 19 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every other Day" ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 19 */2 * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */2 * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ Weekly ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 19 */7 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */7 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 2 Weeks" ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 19 */14 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */14 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 3 Weeks" ]]; then
-    sed -i '/ '"$LUN"' /!b;n;c0 19 */21 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */21 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 fi
 
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
