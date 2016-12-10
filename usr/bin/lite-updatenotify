@@ -9,13 +9,11 @@
 # Ensure multi-language support
 export LANG=C
 
-# set the window icon variable
-ic="/usr/share/icons/zenity-llcc.png"
-
+ic="/usr/share/icons/zenity-llcc.png"          # set the window icon variable
 LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)  # set sudoer user as variable
 DIR=/var/spool/cron/crontabs/                  # set working dir variable
-LUN="Lite Updates Notify"                      # Lite Updates Notify Titlebar
-UNI="Update Notification Interval"             # UNI Zenity message
+LUN="Lite Updates Notify"                      # Lite Updates Notify Titlebar variable
+UNI="Update Notification Interval"             # UNI Zenity message variable
 NTFY=/usr/local/sbin/updatenotify              # updatenotify variable
 
 # Check administrative privileges
