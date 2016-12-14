@@ -49,6 +49,7 @@ fi
 CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text "Set the Updates notification frequency from the options below:\n" \
 --column "     Frequency   " --column "Description" \
+" ✔ 2mins" " 2mins" \
 " ✔ Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
 " ✔ Every 6 Hours" " First run at midnight, then every 6 hours" \
 " ✔ Every 12 Hours" " First run at midnight, then every 12 hours" \
@@ -93,7 +94,9 @@ if [[ $CHFREQ =~ Disable ]]; then
     fi 
 fi
 
-if [[ $CHFREQ =~ Hourly ]]; then
+if [[ $CHFREQ =~ 2mins ]]; then
+    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c*/2 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
+elif [[ $CHFREQ =~ Hourly ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 elif [[ $CHFREQ =~ "Every 6 Hours" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
