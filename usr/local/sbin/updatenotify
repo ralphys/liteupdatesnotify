@@ -2,7 +2,8 @@
 
 xhost local:$USER > /dev/null 2>&1
 export DISPLAY=:0
-apt-get update > /dev/null 2>&1
+sudo apt-get update > /dev/null 2>&1
 UPD=$(/usr/lib/update-notifier/apt-check --human-readable && echo && echo Click here to remove this message)
 notify-send -i /usr/share/icons/Faenza/apps/48/system-software-installer.png --expire-time=10000 'Install Updates' "$UPD"
+xhost - > /dev/null 2>&1
 exit
