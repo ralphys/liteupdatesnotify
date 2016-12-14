@@ -31,7 +31,7 @@ fi
 while (true); do
 # check if user's cron file exists... if doesn't exist, create it and set permissions
 if [ ! -f "$DIR/$LUNUSER" ]; then
-        touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER
+        (umask 177;touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER)
 printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
 #0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
 ## $LUN - DO NOT MANUALLY DELETE OR EDIT THE ABOVE LINE ######" >> $DIR/$LUNUSER
@@ -39,7 +39,7 @@ printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
         if grep -q "$LUN" $DIR/$LUNUSER; then
         :
         else
-            chown $LUNUSER:crontab $DIR/$LUNUSER && chmod 600 $DIR/$LUNUSER &&
+            chown $LUNUSER:crontab $DIR/$LUNUSER;chmod 600 $DIR/$LUNUSER &&
             printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
 #0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
 ## $LUN - DO NOT MANUALLY DELETE OR EDIT THE ABOVE LINE ######" >> $DIR/$LUNUSER
