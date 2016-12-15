@@ -2,13 +2,13 @@
 xhost local:$USER > /dev/null 2>&1
 export DISPLAY=:0
 tmpfile=/tmp/lun
-sudo apt-get update > /dev/null 2>&1
-UPD=$(/usr/lib/update-notifier/apt-check --human-readable && echo && echo Click here to remove this message); printf "$UPD" > $tmpfile
+ionice -c2 -p$$ -n 7;nice -n 19 apt-get update >/dev/null 2>&1
+UPD=$(/usr/lib/update-notifier/apt-check --human-readable && echo && echo Click here to remove this message); printf "$UPD" >> $tmpfile
 if grep -q -x '0 packages can be updated.' /tmp/lun; then
 	notify-send -i /usr/share/icons/Faenza/places/48/distributor-logo-ubuntu.png --expire-time=5000 '   Lite Updates Notify' "Your system is up-to-date"
 else
 	notify-send -i /usr/share/icons/Faenza/apps/48/system-software-installer.png --expire-time=10000 'Install Updates' "$UPD"
 fi
-xhost - > /dev/null 2>&1
+xhost - >/dev/null 2>&1
 rm -f $tmpfile
 exit

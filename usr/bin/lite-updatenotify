@@ -9,23 +9,13 @@
 # Ensure multi-language support
 export LANG=C
 
-# Kill off any package managers that may be running
-if [ "$(pidof synaptic)" ] 
-then
-   killall -9 synaptic
-fi
-
-if [ ! -z "$(pgrep gdebi-gtk)" ]
-then
-   killall -9 gdebi-gtk
-fi
-
-ic="/usr/share/icons/zenity-llcc.png"          # set the window icon variable
-LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)  # set sudoer user as variable
-DIR=/var/spool/cron/crontabs/                  # set working dir variable
-LUN="Lite Updates Notify"                      # Lite Updates Notify Titlebar variable
-UNI="Update Notification Interval"             # UNI Zenity message variable
-NTFY=/usr/local/sbin/updatenotify              # updatenotify variable
+# variables
+LUN="Lite Updates Notify"
+LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)
+ic="/usr/share/icons/zenity-llcc.png"
+DIR=/var/spool/cron/crontabs
+NTFY=/usr/local/sbin/updatenotify-launcher
+file=/etc/sudoers.d/lun
 
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
@@ -35,7 +25,7 @@ if [ $EUID -ne 0 ]; then
    case $? in
     0) gksu bash $0
        exit;;
-    1) continue
+    1) :
     esac
 fi
 # Start main dialogue
@@ -57,6 +47,13 @@ printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
         fi
 fi
 
+
+if [ ! -f "$file" ]; then
+(umask 337;touch $file)
+echo "Defaults visiblepw" >> $file
+echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatenotify, /usr/local/sbin/updatenotify-launcher" >> $file
+fi
+
 CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text "Set the Updates notification frequency from the options below:\n" \
 --column "     Frequency   " --column "Description" \
@@ -65,11 +62,11 @@ CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label
 " ✔ Every 6 Hours" " First run at midnight, then every 6 hours" \
 " ✔ Every 12 Hours" " First run at midnight, then every 12 hours" \
 " ✔ Daily" " Every day at 7pm" \
-" ✔ Every other Day     " " Every other day at 7pm" \
+" ✔ Every other Day" " Every other day at 7pm" \
 " ✔ Weekly" " Once every week at 7pm on a Monday" \
 " ✔ Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
 " ✔ Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-" ✘ Disable" " Disable Updates Notification")
+" ✘ Disable                   " " Disable Updates Notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0
@@ -84,14 +81,15 @@ if [[ $CHFREQ =~ Disable ]]; then
     zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notifications?"
     confirm=$?
     if [ "$confirm" -eq "0" ]; then
+        rm -f $file
         sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER  && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
-                       --text="\n<b>An error occurred while scheduling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
+                       --text="\n<b>An error occurred while disabling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
                        elevate=$?
                        if [ "$elevate" -eq "0" ]; then
                             gksu bash $0
-                            exit
+                            exit 1
                         else
                             exit 0
                         fi
@@ -131,7 +129,7 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 elevate=$?
                 if [ "$elevate" -eq "0" ]; then
                     gksu bash $0
-                    exit
+                    exit 1
                 else
                 exit 0
             fi
