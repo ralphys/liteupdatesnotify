@@ -9,6 +9,6 @@ if grep -q -x '0 packages can be updated.' /tmp/lun; then
 else
 	notify-send -i /usr/share/icons/Faenza/apps/48/system-software-installer.png --expire-time=10000 'Install Updates' "$UPD"
 fi
-xhost - > /dev/null 2>&1
+xhost - >/dev/null 2>&1
 rm -f $tmpfile
 exit
