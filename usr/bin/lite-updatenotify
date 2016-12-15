@@ -9,6 +9,17 @@
 # Ensure multi-language support
 export LANG=C
 
+# Kill off any package managers that may be running
+if [ "$(pidof synaptic)" ] 
+then
+   killall -9 synaptic
+fi
+
+if [ ! -z "$(pgrep gdebi-gtk)" ]
+then
+   killall -9 gdebi-gtk
+fi
+
 ic="/usr/share/icons/zenity-llcc.png"          # set the window icon variable
 LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)  # set sudoer user as variable
 DIR=/var/spool/cron/crontabs/                  # set working dir variable
