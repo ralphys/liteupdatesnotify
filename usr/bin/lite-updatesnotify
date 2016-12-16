@@ -14,7 +14,7 @@ LUN="Lite Updates Notify"
 LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)
 ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
-NTFY=/usr/local/sbin/updatenotify-launcher
+NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
 
 # Check administrative privileges
@@ -51,7 +51,7 @@ fi
 if [ ! -f "$file" ]; then
 (umask 337;touch $file)
 echo "Defaults visiblepw" >> $file
-echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatenotify, /usr/local/sbin/updatenotify-launcher" >> $file
+echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 
 CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
