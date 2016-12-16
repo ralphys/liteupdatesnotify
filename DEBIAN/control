@@ -1,7 +1,6 @@
 Package: lite-updatesnotify
 Version: 2.0-0010-linuxlite
-Essential: no
-Section: base
+Section: extras
 Priority: optional
 Installed-Size: 12.3
 Depends: apt, zenity, gksu
