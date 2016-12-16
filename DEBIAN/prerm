@@ -2,13 +2,13 @@
 LUN="Lite Updates Notify"
 LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)
 DIR=/var/spool/cron/crontabs
-NTFY=/usr/local/sbin/updatenotify-launcher
+NTFY=/usr/local/sbin/updatesnotify-launcher
 if [ "$1" = "remove" ]; then
-rm -f /usr/local/sbin/updatenotify
-rm -f /usr/local/sbin/updatenotify-launcher
-rm -f /usr/bin/lite-updatenotify
-rm -f /usr/share/applications/lite-updatenotify.desktop
-rm -R /usr/share/liteupdatenotify
+rm -f /usr/local/sbin/updatesnotify
+rm -f /usr/local/sbin/updatesnotify-launcher
+rm -f /usr/bin/lite-updatesnotify
+rm -f /usr/share/applications/lite-updatesnotify.desktop
+rm -R /usr/share/lite-updatesnotify
 rm -f /etc/sudoers.d/lun
 sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER  && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 fi
