@@ -1,0 +1,5 @@
+#!/bin/sh
+chown root:root /usr/local/sbin/updatenotify
+chown root:root /usr/local/sbin/updatenotify-launcher
+chown -R root:root /usr/share/liteupdatenotify
+chown root:root /usr/share/applications/lite-updatenotify.desktop

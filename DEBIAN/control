@@ -9,5 +9,5 @@ Homepage: http://www.linuxliteos.com
 Maintainer: Jerry Bezencon<valtam@linuxliteos.com>, Ralphy<postmaster@unlockforus.com>
 Architecture: all
 Description: Linux Lite Update OSD notification
- Manage Updates notification frequency in Linux Lite.
+ Configure Updates notification frequency in Linux Lite.
  
