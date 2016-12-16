@@ -1,5 +1,6 @@
 #!/bin/sh
+chown root:root /usr/bin/lite-updatesnotify
 chown root:root /usr/local/sbin/updatesnotify
 chown root:root /usr/local/sbin/updatesnotify-launcher
-chown -R root:root /usr/share/lite-updatesnotify
 chown root:root /usr/share/applications/lite-updatesnotify.desktop
+chown root:root /usr/share/pixmaps/lite-updatesnotify.png
