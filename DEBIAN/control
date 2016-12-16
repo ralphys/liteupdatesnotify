@@ -10,4 +10,3 @@ Maintainer: Jerry Bezencon<valtam@linuxliteos.com>, Ralphy<postmaster@unlockforu
 Architecture: all
 Description: Linux Lite Update OSD notification
  Configure Updates notification frequency in Linux Lite.
- 
