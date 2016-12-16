@@ -1,0 +1,13 @@
+Package: lite-updatesnotify
+Version: 2.0-0010-linuxlite
+Essential: no
+Section: base
+Priority: optional
+Installed-Size: 12.3
+Depends: apt, zenity, gksu
+Homepage: http://www.linuxliteos.com
+Maintainer: Jerry Bezencon<valtam@linuxliteos.com>, Ralphy<postmaster@unlockforus.com>
+Architecture: all
+Description: Linux Lite Update OSD notification
+ Manage Updates notification frequency in Linux Lite.
+ 
