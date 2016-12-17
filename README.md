@@ -1,11 +1,11 @@
 Lite Updates Notify
 ================
 
-Configure Updates notification frequency in Linux Lite.
+Configure updates notification frequency in Linux Lite.
 
 This application is a work-in-progress and is far from complete.
 
-![](http://i.imgur.com/dbqXpaX.png)
+![](http://i.imgur.com/blCUMo4.png)
 
 ![](http://i.imgur.com/PGGxtxi.png)
 
