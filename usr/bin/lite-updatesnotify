@@ -16,6 +16,7 @@ ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
+APPICON=/usr/share/liteupdatesnotify/icons/clock.png
 
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
@@ -28,6 +29,7 @@ if [ $EUID -ne 0 ]; then
     1) :
     esac
 fi
+
 # Start main dialogue
 while (true); do
 # check if user's cron file exists... if doesn't exist, create it and set permissions
@@ -47,26 +49,25 @@ printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
         fi
 fi
 
-
 if [ ! -f "$file" ]; then
 (umask 337;touch $file)
 echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 
-CHFREQ=$(zenity --list --width="480" --height=320 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+CHFREQ=$(zenity --list --imagelist --width="550" --height=480 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text "Set the Updates notification frequency from the options below:\n" \
---column "     Frequency   " --column "Description" \
-" ✔ 2mins" " 2mins" \
-" ✔ Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
-" ✔ Every 6 Hours" " First run at midnight, then every 6 hours" \
-" ✔ Every 12 Hours" " First run at midnight, then every 12 hours" \
-" ✔ Daily" " Every day at 7pm" \
-" ✔ Every other Day" " Every other day at 7pm" \
-" ✔ Weekly" " Once every week at 7pm on a Monday" \
-" ✔ Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
-" ✔ Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-" ✘ Disable                   " " Disable Updates Notification")
+--column "Select" --column "Frequency" --column "Description" \
+"$APPICON" "2mins" " 2mins" \
+"$APPICON" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
+"$APPICON" "Every 6 Hours" " First run at midnight, then every 6 hours" \
+"$APPICON" "Every 12 Hours" " First run at midnight, then every 12 hours" \
+"$APPICON" "Daily" " Every day at 7pm" \
+"$APPICON" "Every other Day" " Every other day at 7pm" \
+"$APPICON" "Weekly" " Once every week at 7pm on a Monday" \
+"$APPICON" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
+"$APPICON" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
+"/usr/share/liteupdatesnotify/icons/disable.png" "Disable                   " " Disable Updates Notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0
