@@ -1,8 +1,9 @@
 #!/bin/sh
+#!/bin/sh
 chown root:root /usr/bin/lite-updatesnotify
 chown root:root /usr/local/sbin/updatesnotify
 chown root:root /usr/local/sbin/updatesnotify-launcher
 chown root:root /usr/share/applications/lite-updatesnotify.desktop
-chown root:root /usr/share/liteappsicons/lite-updatesnotify -R
-chmod 755 /usr/share/liteappsicons
-chmod 755 /usr/share/liteappsicons/lite-updatesnotify
+chown root:root /usr/share/liteappsicons -R
+find /usr/share/liteappsicons -type d -exec chmod 755 {} \;
+find /usr/share/liteappsicons -type f -exec chmod 644 {} \;
