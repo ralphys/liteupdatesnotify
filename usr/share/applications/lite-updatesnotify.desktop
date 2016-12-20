@@ -4,6 +4,6 @@ Comment=Set Updates notification frequency
 Categories=GNOME;GTK;Settings;X-GNOME-Settings-Panel;X-GNOME-PersonalSettings;DesktopSettings;X-XFCE;
 Keywords=Configuration;Profile;User;
 Exec=/usr/bin/lite-updatesnotify
-Icon=lite-updatesnotify
+Icon=/usr/share/liteappsicons/lite-updatesnotify.png
 Terminal=false
 Type=Application
