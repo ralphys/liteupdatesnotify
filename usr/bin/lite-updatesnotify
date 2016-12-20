@@ -16,7 +16,8 @@ ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
-APPICON=/usr/share/liteupdatesnotify/icons/clock.png
+APPICON=/usr/share/liteappsicons/lite-updatesnotify-clock_32x32.png
+APPICONDISABLE=/usr/share/liteappsicons/lite-updatesnotify-disable_32x32.png
 
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
@@ -55,19 +56,18 @@ echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 
-CHFREQ=$(zenity --list --imagelist --width="550" --height=480 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
---text "Set the Updates notification frequency from the options below:\n" \
---column "Select" --column "Frequency" --column "Description" \
-"$APPICON" "2mins" " 2mins" \
-"$APPICON" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
-"$APPICON" "Every 6 Hours" " First run at midnight, then every 6 hours" \
-"$APPICON" "Every 12 Hours" " First run at midnight, then every 12 hours" \
-"$APPICON" "Daily" " Every day at 7pm" \
-"$APPICON" "Every other Day" " Every other day at 7pm" \
-"$APPICON" "Weekly" " Once every week at 7pm on a Monday" \
-"$APPICON" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
-"$APPICON" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-"/usr/share/liteupdatesnotify/icons/disable.png" "Disable                   " " Disable Updates Notification")
+CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=420 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+--text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n' \
+--column "          " --column "Schedule#" --column "Frequency" --column "Description" \
+"$APPICON" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
+"$APPICON" "11" "Every 6 Hours" " First run at midnight, then every 6 hours" \
+"$APPICON" "12" "Every 12 Hours" " First run at midnight, then every 12 hours" \
+"$APPICON" "13" "Daily" "Every day at 7pm" \
+"$APPICON" "14" "Every other day    " " Every other day at 7pm" \
+"$APPICON" "15" "Weekly" " Once every week at 7pm on a Monday" \
+"$APPICON" "16" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
+"$APPICON" "17" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
+"$APPICONDISABLE" "20" "Disable                   " " Disable Updates Notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0
@@ -78,8 +78,8 @@ if [[ $CHFREQ -eq "0" ]]; then
     continue
 fi
 
-if [[ $CHFREQ =~ Disable ]]; then
-    zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notifications?"
+if [[ $CHFREQ -eq "20" ]]; then
+    zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notification?"
     confirm=$?
     if [ "$confirm" -eq "0" ]; then
         rm -f $file
@@ -104,23 +104,21 @@ if [[ $CHFREQ =~ Disable ]]; then
     fi 
 fi
 
-if [[ $CHFREQ =~ 2mins ]]; then
-    sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c*/2 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ Hourly ]]; then
+if [[ $CHFREQ -eq "10" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ "Every 6 Hours" ]]; then
+elif [[ $CHFREQ -eq "11" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 */6 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ "Every 12 Hours" ]]; then
+elif [[ $CHFREQ -eq "12" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 */12 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ Daily ]]; then
+elif [[ $CHFREQ -eq "13" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ "Every other Day" ]]; then
+elif [[ $CHFREQ -eq "14" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */2 * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ Weekly ]]; then
+elif [[ $CHFREQ -eq "15" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */7 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ "Every 2 Weeks" ]]; then
+elif [[ $CHFREQ -eq "16" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */14 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
-elif [[ $CHFREQ =~ "Every 3 Weeks" ]]; then
+elif [[ $CHFREQ -eq "17" ]]; then
     sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c0 19 */21 * 1 ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
 fi
 
