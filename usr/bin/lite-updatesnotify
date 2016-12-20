@@ -16,8 +16,8 @@ ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
-APPICON=/usr/share/liteappsicons/lite-updatesnotify-clock_32x32.png
-APPICONDISABLE=/usr/share/liteappsicons/lite-updatesnotify-disable_32x32.png
+APPICON=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-clock_32x32.png
+APPICONDISABLE=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-disable_32x32.png
 
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
