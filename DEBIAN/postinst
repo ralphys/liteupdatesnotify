@@ -4,3 +4,5 @@ chown root:root /usr/local/sbin/updatesnotify
 chown root:root /usr/local/sbin/updatesnotify-launcher
 chown root:root /usr/share/applications/lite-updatesnotify.desktop
 chown root:root /usr/share/liteappsicons/lite-updatesnotify -R
+chmod 755 /usr/share/liteappsicons
+chmod 755 /usr/share/liteappsicons/lite-updatesnotify
