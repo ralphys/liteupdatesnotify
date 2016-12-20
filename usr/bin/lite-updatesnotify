@@ -67,7 +67,7 @@ CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550
 "$APPICON" "15" "Weekly" " Once every week at 7pm on a Monday" \
 "$APPICON" "16" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
 "$APPICON" "17" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-"$APPICONDISABLE" "20" "Disable                   " " Disable Updates Notification")
+"$APPICONDISABLE" "20" "Disable                   " " Disable Updates notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0

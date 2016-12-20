@@ -7,7 +7,7 @@ This application is a work-in-progress and is far from complete.
 
 ![](http://i.imgur.com/blCUMo4.png)
 
-![](http://i.imgur.com/rXuORZq.png)
+![](http://i.imgur.com/T57vKSI.png)
 
 ## License ![License](https://img.shields.io/badge/license-GPLv2-green.svg)
 
