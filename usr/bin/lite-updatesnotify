@@ -25,13 +25,16 @@ if [ $EUID -ne 0 ]; then
            --width=400 --height=50 --icon-name=info \
            --text="\nYou need administrative privileges to make changes in $LUN.\n \nClick <b>Continue</b> to continue without administrative privileges \nor <b>Authenticate</b> to enter your password next." --no-wrap
    case $? in
-    0) gksu bash $0
+    0) gksu -m '
+<b>Lite Updates Notify requires Administrative privileges</b>
+
+
+                Please enter your password to continue.' bash $0
        exit;;
     1) :
     esac
 fi
-
-# Start main dialogue
+# Start main dialog loop
 while (true); do
 # check if user's cron file exists... if doesn't exist, create it and set permissions
 if [ ! -f "$DIR/$LUNUSER" ]; then
@@ -46,16 +49,16 @@ printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
             chown $LUNUSER:crontab $DIR/$LUNUSER;chmod 600 $DIR/$LUNUSER &&
             printf "# DO NOT MANUALLY DELETE OR EDIT THE NEXT 2 LINES
 #0 * * * * $LUNUSER ionice -c2 -p\$\$ -n 7;nice -n 19 $NTFY >/dev/null 2>&1
-## $LUN - DO NOT MANUALLY DELETE OR EDIT THE ABOVE LINE ######" >> $DIR/$LUNUSER
+## $LUN - DO NOT MANUALLY EDIT OR DELETE THIS LINE OR THE ONE ABOVE ######" >> $DIR/$LUNUSER
         fi
 fi
-
+# create and configure lun file
 if [ ! -f "$file" ]; then
 (umask 337;touch $file)
 echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
-
+# Main dialog - schedules
 CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=420 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n' \
 --column "          " --column "Schedule#" --column "Frequency" --column "Description" \
@@ -74,7 +77,7 @@ if [ "$?" -eq "1" ]; then
 fi 
 
 if [[ $CHFREQ -eq "0" ]]; then
-    zenity --info --width=280 --height=60 --title=" $LUN" --text="\nYou did not select any of the available options. Please try again."
+    zenity --info --width=280 --height=60 --title=" $LUN" --text="\nYou did not select a schedule. Please try again."
     continue
 fi
 
@@ -86,10 +89,14 @@ if [[ $CHFREQ -eq "20" ]]; then
         sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER  && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
-                       --text="\n<b>An error occurred while disabling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
+                       --text="\n<b>An error occurred while disabling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?"
                        elevate=$?
                        if [ "$elevate" -eq "0" ]; then
-                            gksu bash $0
+                            gksu -m '
+<b>Lite Updates Notify requires Administrative privileges</b>
+
+
+                Please enter your password to continue.' bash $0
                             exit 1
                         else
                             exit 0
@@ -124,10 +131,14 @@ fi
 
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
         zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
-               --text="\n<b>An error occurred while scheduling updates notification</b> \n\nYou may not have sufficient permissions to perform this task. \n\nDo you want to Authenticate now and go back to $LUN to try again?"
+               --text="\n<b>An error occurred while scheduling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?"
                 elevate=$?
                 if [ "$elevate" -eq "0" ]; then
-                    gksu bash $0
+                    gksu -m '
+<b>Lite Updates Notify requires Administrative privileges</b>
+
+
+                Please enter your password to continue.' bash $0
                     exit 1
                 else
                 exit 0
