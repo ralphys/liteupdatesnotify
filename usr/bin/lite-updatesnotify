@@ -63,8 +63,8 @@ echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 # Main dialog - schedules
-CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=440 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
---text='\n          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n'  \
+CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=420 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+--text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n'  \
 --column "          " --column "Schedule#" --column "Frequency" --column "Description" \
 "$APPICON" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
 "$APPICON" "11" "Every 6 Hours" " First run at midnight, then every 6 hours" \
