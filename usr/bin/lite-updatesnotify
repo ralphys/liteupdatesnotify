@@ -19,11 +19,14 @@ file=/etc/sudoers.d/lun
 APPICON=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-clock_32x32.png
 APPICONDISABLE=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-disable_32x32.png
 
+# this runs on exit 
+trap "kill -USR2 $(cat /tmp/yad_lun1_pid)" EXIT 
+
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
-    zenity --question --cancel-label="Continue" --ok-label="Authenticate" --window-icon="$ic" --title=" $LUN - Are you Administrator?" \
-           --width=400 --height=50 --icon-name=info \
-           --text="\nYou need administrative privileges to make changes in $LUN.\n \nClick <b>Continue</b> to continue without administrative privileges \nor <b>Authenticate</b> to enter your password next." --no-wrap
+    yad --image="info" --borders=10 --geometry320x80 --button="Continue":1 --button="Authenticate"!gtk-ok:0 --window-icon="$ic" --title=" $LUN" --fixed --skip-taskbar \
+        --text="\nYou need administrative privileges to make changes in Lite Updates Notify.\n \nClick <b>Continue</b> to proceed without administrative privileges or <b>Authenticate</b> \nto enter your password next.\n" 
+
    case $? in
     0) gksu -m '
 <b>Lite Updates Notify requires Administrative privileges</b>
@@ -31,7 +34,8 @@ if [ $EUID -ne 0 ]; then
 
                 Please enter your password to continue.' bash $0
        exit;;
-    1) :
+    1) :;;
+    252) exit 0
     esac
 fi
 # Start main dialog loop
@@ -59,8 +63,8 @@ echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 # Main dialog - schedules
-CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=420 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
---text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n' \
+CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=440 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+--text='\n          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n'  \
 --column "          " --column "Schedule#" --column "Frequency" --column "Description" \
 "$APPICON" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
 "$APPICON" "11" "Every 6 Hours" " First run at midnight, then every 6 hours" \
@@ -77,19 +81,20 @@ if [ "$?" -eq "1" ]; then
 fi 
 
 if [[ $CHFREQ -eq "0" ]]; then
-    zenity --info --width=280 --height=60 --title=" $LUN" --text="\nYou did not select a schedule. Please try again."
+    yad --image="info" --borders=10 --geometry280x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nYou did not select a schedule. Please try again."
     continue
 fi
 
 if [[ $CHFREQ -eq "20" ]]; then
-    zenity --question --title=" $LUN" --text="\nAre you sure you want to disable Lite Updates notification?"
+    yad --image="dialog-question" --borders=10 --geometry320x50 --button=gtk-no:1 --button=gtk-yes:0 --window-icon="dialog-question" --title=" $LUN" --fixed --text="\nAre you sure you want to disable Lite Updates notification?"
     confirm=$?
     if [ "$confirm" -eq "0" ]; then
         rm -f $file
         sed -i -n '1!G;h;$p' $DIR/$LUNUSER && sed -i '/ '"$LUN"' /!b;n;c#0 * * * * ionice -c2 -p\$\$ -n 7;nice -n 19 '"$NTFY"' >/dev/null 2>&1' $DIR/$LUNUSER  && sed -i -n '1!G;h;$p' $DIR/$LUNUSER
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-                zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
-                       --text="\n<b>An error occurred while disabling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?"
+
+            yad --image="dialog-error" --borders=10 --geometry320x50 --button=gtk-no:1 --button=gtk-yes:0 --window-icon="error" --title=" $LUN - Error" --fixed \
+                --text="\n<b>An error occurred while disabling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?\n"
                        elevate=$?
                        if [ "$elevate" -eq "0" ]; then
                             gksu -m '
@@ -103,9 +108,11 @@ if [[ $CHFREQ -eq "20" ]]; then
                         fi
                 continue
             else
-                zenity --info --timeout=3 --title=" $LUN" --text="\nNotification Updates have been disabled!"
+                yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nNotification Updates have been disabled!"
                 exit 0
             fi
+        elif [ "$confirm" -eq "252" ]; then
+            exit 0
         else
             continue
     fi 
@@ -130,8 +137,8 @@ elif [[ $CHFREQ -eq "17" ]]; then
 fi
 
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
-        zenity --question --width=380 --height=60 --icon-name=error --title="$LUN - Error" \
-               --text="\n<b>An error occurred while scheduling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?"
+    yad --image="dialog-error" --borders=10 --geometry320x50 --button=gtk-no:1 --button=gtk-yes:0 --window-icon="error" --title=" $LUN - Error" --fixed \
+        --text="\n<b>An error occurred while scheduling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?\n"
                 elevate=$?
                 if [ "$elevate" -eq "0" ]; then
                     gksu -m '
@@ -146,7 +153,9 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
         continue
     else
         service cron reload
-        zenity --width=320 --height=60 --info --timeout=3 --title=" $LUN" --text="\nUpdates notification has been successfully scheduled."
+        yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed \
+            --text="\nUpdates notification has been successfully scheduled."
+        exit 0
 fi
 done
 exit 0
