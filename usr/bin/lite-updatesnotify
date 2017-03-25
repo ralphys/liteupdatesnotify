@@ -16,20 +16,15 @@ ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
-APPICON=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-clock_32x32.png
-APPICONDISABLE=/usr/share/liteappsicons/lite-updatesnotify/lite-updatesnotify-disable_32x32.png
-
-# this runs on exit 
-trap "kill -USR2 $(cat /tmp/yad_lun1_pid)" EXIT 
 
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
     yad --image="info" --borders=10 --geometry320x80 --button="Continue":1 --button="Authenticate"!gtk-ok:0 --window-icon="$ic" --title=" $LUN" --fixed --skip-taskbar \
-        --text="\nYou need administrative privileges to make changes in Lite Updates Notify.\n \nClick <b>Continue</b> to proceed without administrative privileges or <b>Authenticate</b> \nto enter your password next.\n" 
+        --text="\nYou need administrative privileges to make changes in Lite Updates Notify.\n \nClick <b>Continue</b> to proceed without administrative privileges or <b>Authenticate</b> \nto enter your password next.\n"
 
    case $? in
     0) gksu -m '
-<b>Lite Updates Notify requires Administrative privileges</b>
+<b>Lite Updates Notify requires Administrative privileges   </b>
 
 
                 Please enter your password to continue.' bash $0
@@ -38,8 +33,38 @@ if [ $EUID -ne 0 ]; then
     252) exit 0
     esac
 fi
+
 # Start main dialog loop
 while (true); do
+# icons
+active=/usr/share/liteappsicons/lite-updatesnotify/clock-active32x32.png
+inactive=/usr/share/liteappsicons/lite-updatesnotify/clock-inactive32x32.png
+APPICON1=$inactive ; APPICON2=$inactive ; APPICON3=$inactive ; APPICON4=$inactive
+APPICON5=$inactive ; APPICON6=$inactive ; APPICON7=$inactive ; APPICON8=$inactive
+APPICON9=/usr/share/liteappsicons/lite-updatesnotify/disable-off_32x32.png
+
+if grep -q -Fx '0 * * * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON1=$active
+elif grep -q -F '0 */6 * * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON2=$active
+elif grep -q -F '0 */12 * * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON3=$active
+elif grep -q -F '0 19 * * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON4=$active
+elif grep -q -F '0 19 */2 * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON5=$active
+elif grep -q -F '0 19 */7 * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON6=$active
+elif grep -q -F '0 19 */14 * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON7=$active
+elif grep -q -F '0 19 */21 * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+  APPICON8=$active
+fi
+if grep -q -Fx '#0 * * * * ionice -c2 -p$$ -n 7;nice -n 19 /usr/local/sbin/updatesnotify-launcher >/dev/null 2>&1' $DIR/$LUNUSER; then
+    APPICON9=/usr/share/liteappsicons/litetweaks/appicon3-on.png
+  else
+    APPICON9=/usr/share/liteappsicons/lite-updatesnotify/disable-off_32x32.png
+fi
 # check if user's cron file exists... if doesn't exist, create it and set permissions
 if [ ! -f "$DIR/$LUNUSER" ]; then
         (umask 177;touch $DIR/$LUNUSER && chown $LUNUSER:crontab $DIR/$LUNUSER)
@@ -63,22 +88,22 @@ echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 # Main dialog - schedules
-CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=420 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=424 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n'  \
---column "          " --column "Schedule#" --column "Frequency" --column "Description" \
-"$APPICON" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
-"$APPICON" "11" "Every 6 Hours" " First run at midnight, then every 6 hours" \
-"$APPICON" "12" "Every 12 Hours" " First run at midnight, then every 12 hours" \
-"$APPICON" "13" "Daily" "Every day at 7pm" \
-"$APPICON" "14" "Every other day    " " Every other day at 7pm" \
-"$APPICON" "15" "Weekly" " Once every week at 7pm on a Monday" \
-"$APPICON" "16" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
-"$APPICON" "17" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
-"$APPICONDISABLE" "20" "Disable                   " " Disable Updates notification")
+--column " Schedule " --column "Schedule#" --column "Frequency" --column "Description" \
+"$APPICON1" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
+"$APPICON2" "11" "Every 6 Hours" " First run at midnight, then every 6 hours" \
+"$APPICON3" "12" "Every 12 Hours" " First run at midnight, then every 12 hours" \
+"$APPICON4" "13" "Daily" "Every day at 7pm" \
+"$APPICON5" "14" "Every other day    " " Every other day at 7pm" \
+"$APPICON6" "15" "Weekly" " Once every week at 7pm on a Monday" \
+"$APPICON7" "16" "Every 2 Weeks" " Once every 2 weeks at 7pm on a Monday" \
+"$APPICON8" "17" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
+"$APPICON9" "20" "Disable                   " " Disable Updates notification")
 
 if [ "$?" -eq "1" ]; then
     exit 0
-fi 
+fi
 
 if [[ $CHFREQ -eq "0" ]]; then
     yad --image="info" --borders=10 --geometry280x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nYou did not select a schedule. Please try again."
@@ -98,7 +123,7 @@ if [[ $CHFREQ -eq "20" ]]; then
                        elevate=$?
                        if [ "$elevate" -eq "0" ]; then
                             gksu -m '
-<b>Lite Updates Notify requires Administrative privileges</b>
+<b>Lite Updates Notify requires Administrative privileges   </b>
 
 
                 Please enter your password to continue.' bash $0
@@ -109,13 +134,13 @@ if [[ $CHFREQ -eq "20" ]]; then
                 continue
             else
                 yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nNotification Updates have been disabled!"
-                exit 0
+                continue
             fi
         elif [ "$confirm" -eq "252" ]; then
             exit 0
         else
             continue
-    fi 
+    fi
 fi
 
 if [[ $CHFREQ -eq "10" ]]; then
@@ -142,7 +167,7 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
                 elevate=$?
                 if [ "$elevate" -eq "0" ]; then
                     gksu -m '
-<b>Lite Updates Notify requires Administrative privileges</b>
+<b>Lite Updates Notify requires Administrative privileges   </b>
 
 
                 Please enter your password to continue.' bash $0
@@ -155,7 +180,7 @@ if [ "${PIPESTATUS[0]}" -ne "0" ]; then
         service cron reload
         yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed \
             --text="\nUpdates notification has been successfully scheduled."
-        exit 0
+        continue
 fi
 done
 exit 0
