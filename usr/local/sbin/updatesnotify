@@ -2,6 +2,7 @@
 xhost local:$USER > /dev/null 2>&1
 export DISPLAY=:0
 tmpfile=/tmp/lun
+test -e ["/var/lib/dpkg/lock"] || rm -rf /var/lib/dpkg/lock
 ionice -c2 -p$$ -n 7;nice -n 19 apt-get update >/dev/null 2>&1
 UPD=$(apt-get -s dist-upgrade | awk '/[0-9]+ upgraded,/ {print $1 " package updates are available"}' && echo && echo Click here to remove this message); echo $UPD > $tmpfile
 if sed -n '/\b0 package\b/p' $tmpfile | grep -q 'package'; then
