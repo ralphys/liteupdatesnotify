@@ -3,6 +3,9 @@
   "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
   "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
+  
+  <vendor>Linux Lite</vendor>
+  <vendor_url>https://linuxliteos.com/</vendor_url>
 
   <action id="com.ubuntu.pkexec.lite_updatesnotify">
     <message>Authentication is required to run Lite Updates Notify</message>
