@@ -8,34 +8,29 @@
 
 # Ensure multi-language support
 export LANG=C
-
 # variables
 LUN="Lite Updates Notify"
-LUNUSER=$(sudo -u ${SUDO_USER:-$USER} whoami)
+LUNTMPUSER=$(whoami)
+TMPF="/tmp/myuser"
+if [ ! -f "$TMPF" ]; then echo "$LUNTMPUSER" > "$TMPF"; else :; fi
 ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
 file=/etc/sudoers.d/lun
-
 # Check administrative privileges
 if [ $EUID -ne 0 ]; then
     yad --image="info" --borders=10 --geometry320x80 --button="Continue":1 --button="Authenticate"!gtk-ok:0 --window-icon="$ic" --title=" $LUN" --fixed --skip-taskbar \
         --text="\nYou need administrative privileges to make changes in Lite Updates Notify.\n \nClick <b>Continue</b> to proceed without administrative privileges or <b>Authenticate</b> \nto enter your password next.\n"
 
    case $? in
-    0) gksu -m '
-<b>Lite Updates Notify requires Administrative privileges   </b>
-
-
-                Please enter your password to continue.' bash $0
-       exit;;
+    0) pkexec "$0" "$@"; if [ "${PIPESTATUS[@]}" -eq "126" ]; then rm -f "$TMPF"; fi; exit;;
     1) :;;
-    252) exit 0
+  252) rm -f "$TMPF"; exit 0
     esac
 fi
-
 # Start main dialog loop
 while (true); do
+LUNUSER=$(cat "$TMPF")
 # icons
 active=/usr/share/liteappsicons/lite-updatesnotify/clock-active32x32.png
 inactive=/usr/share/liteappsicons/lite-updatesnotify/clock-inactive32x32.png
@@ -88,7 +83,7 @@ echo "Defaults visiblepw" >> $file
 echo "%sudo ALL=(root) NOPASSWD:/usr/local/sbin/updatesnotify, /usr/local/sbin/updatesnotify-launcher" >> $file
 fi
 # Main dialog - schedules
-CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550" --height=424 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
+selected=$(zenity --list --imagelist --separator="," --print-column="2,3" --hide-column=2 --width="550" --height=424 --title="     $LUN" --ok-label="Set" --cancel-label="Quit" --window-icon=$ic \
 --text='          <span font="Sans Bold 10">Set the Updates notification frequency from the options below:</span>\n'  \
 --column " Schedule " --column "Schedule#" --column "Frequency" --column "Description" \
 "$APPICON1" "10" "Hourly" " Once every hour eg. 1pm, 2pm, 3pm etc" \
@@ -101,9 +96,11 @@ CHFREQ=$(zenity --list --imagelist --print-column=2 --hide-column=2 --width="550
 "$APPICON8" "17" "Every 3 Weeks" " Once every 3 weeks at 7pm on a Monday" \
 "$APPICON9" "20" "Disable                   " " Disable Updates notification")
 
-if [ "$?" -eq "1" ]; then
-    exit 0
-fi
+if [ "$?" -eq "1" ]; then rm -f "$TMPF"; exit 0 ; fi
+
+# read selection and split it
+CHFREQ=$(awk -F, '{print $1}' <<<$selected)
+dialog=$(awk -F, '{print $2}' <<<$selected)
 
 if [[ $CHFREQ -eq "0" ]]; then
     yad --image="info" --borders=10 --geometry280x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nYou did not select a schedule. Please try again."
@@ -119,21 +116,15 @@ if [[ $CHFREQ -eq "20" ]]; then
             if [ "${PIPESTATUS[0]}" -ne "0" ]; then
 
             yad --image="dialog-error" --borders=10 --geometry320x50 --button=gtk-no:1 --button=gtk-yes:0 --window-icon="error" --title=" $LUN - Error" --fixed \
-                --text="\n<b>An error occurred while disabling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?\n"
+                --text="\n<b>An error occurred while disabling updates notification</b> \nYou do not have sufficient permissions to perform this task. \n\nWould you like to authenticate now?\n"
                        elevate=$?
-                       if [ "$elevate" -eq "0" ]; then
-                            gksu -m '
-<b>Lite Updates Notify requires Administrative privileges   </b>
-
-
-                Please enter your password to continue.' bash $0
-                            exit 1
+                       if [ "$elevate" -eq "0" ]; then pkexec "$0" "$@"; if [ "${PIPESTATUS[@]}" -eq "126" ]; then rm -f "$TMPF"; fi; exit 0
                         else
-                            exit 0
+                            rm -f "$TMPF"; exit 0
                         fi
                 continue
             else
-                yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nNotification Updates have been disabled!"
+                yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed --text="\nNotification Updates have been disabled."
                 continue
             fi
         elif [ "$confirm" -eq "252" ]; then
@@ -163,23 +154,17 @@ fi
 
 if [ "${PIPESTATUS[0]}" -ne "0" ]; then
     yad --image="dialog-error" --borders=10 --geometry320x50 --button=gtk-no:1 --button=gtk-yes:0 --window-icon="error" --title=" $LUN - Error" --fixed \
-        --text="\n<b>An error occurred while scheduling updates notification</b> \nYou may not have sufficient permissions to perform this task. \n\nWould you like to authenticate now and go back to try again?\n"
+        --text="\n<b>An error occurred while scheduling updates notification</b> \nYou do not have sufficient permissions to perform this task. \n\nWould you like to authenticate now?\n"
                 elevate=$?
-                if [ "$elevate" -eq "0" ]; then
-                    gksu -m '
-<b>Lite Updates Notify requires Administrative privileges   </b>
-
-
-                Please enter your password to continue.' bash $0
-                    exit 1
+                if [ "$elevate" -eq "0" ]; then pkexec "$0" "$@"; if [ "${PIPESTATUS[@]}" -eq "126" ]; then rm -f "$TMPF"; fi; exit 0
                 else
-                exit 0
+                rm -f "$TMPF"; exit 0
             fi
         continue
     else
         service cron reload
         yad --image="info" --borders=10 --timeout=3 --geometry320x50 --button=gtk-ok:0 --window-icon="info" --title=" $LUN" --fixed \
-            --text="\nUpdates notification has been successfully scheduled."
+            --text="\n Updates notification has been successfully scheduled.\n\n Frequency:<b> $dialog</b>"
         continue
 fi
 done
