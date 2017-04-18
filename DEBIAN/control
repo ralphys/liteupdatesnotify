@@ -6,7 +6,7 @@ Priority: required
 Installed-Size: 15.9
 Depends: apt, zenity, yad, gksu
 Homepage: http://www.linuxliteos.com
-Maintainer: Jerry Bezencon<valtam@linuxliteos.com>, Ralphy<postmaster@unlockforus.com>
+Maintainer: Jerry Bezencon <valtam@linuxliteos.com>
 Architecture: all
 Description: Linux Lite Update OSD notification
  Configure Updates notification frequency in Linux Lite.
