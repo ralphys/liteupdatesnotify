@@ -1,3 +1,9 @@
+lite-updatesnotify (2.0-0040-linuxlite) citrine; urgency=medium
+
+  * placeholder
+
+ -- Jerry Bezencon <valtam@linuxliteos.com>  Wed, 12 Apr 2017 01:11:22 +1200
+
 lite-updatesnotify (2.0-0030-linuxlite) citrine; urgency=medium
 
   * Replace gksu with pkexec
