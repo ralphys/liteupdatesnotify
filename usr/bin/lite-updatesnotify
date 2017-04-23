@@ -12,7 +12,7 @@ export LANG=C
 LUN="Lite Updates Notify"
 LUNTMPUSER=$(whoami)
 TMPF="/tmp/myuser"
-if [ ! -f "$TMPF" ]; then echo "$LUNTMPUSER" > "$TMPF"; else :; fi
+if [ ! -f "$TMPF" ]; then echo "$LUNTMPUSER" > "$TMPF"; chmod 600 "$TMPF"; else :; fi
 ic="/usr/share/icons/zenity-llcc.png"
 DIR=/var/spool/cron/crontabs
 NTFY=/usr/local/sbin/updatesnotify-launcher
